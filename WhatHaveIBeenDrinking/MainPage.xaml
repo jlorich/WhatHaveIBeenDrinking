@@ -9,6 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     
     <RelativePanel>
-        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="CurrentDrinkName" />
+        <TextBlock x:Name="CurrentDrinkName" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Helloooo" FontWeight="Bold" FontSize="14" Height="25" HorizontalAlignment="Center" Foreground="White" />
     </RelativePanel>
 </Page>

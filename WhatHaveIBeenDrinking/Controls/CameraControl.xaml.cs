@@ -62,6 +62,7 @@ namespace WhatHaveIBeenDrinking.Controls
     public class FaceDetectedEventArgs
     {
         public DetectedFace Face;
+        public SoftwareBitmap Bitmap;
         //Face GetLastFaceAttributesForFace(BitmapBounds faceBox);
         //IdentifiedPerson GetLastIdentifiedPersonForFace(BitmapBounds faceBox);
         //SimilarPersistedFace GetLastSimilarPersistedFaceForFace(BitmapBounds faceBox);
@@ -243,34 +244,35 @@ namespace WhatHaveIBeenDrinking.Controls
                 // Create a VideoFrame object specifying the pixel format we want our capture image to be (NV12 bitmap in this case).
                 // GetPreviewFrame will convert the native webcam frame into this format.
                 const BitmapPixelFormat InputPixelFormat = BitmapPixelFormat.Nv12;
-                using (VideoFrame currentFrame = new VideoFrame(InputPixelFormat, (int)this.videoProperties.Width, (int)this.videoProperties.Height))
+
+                using (VideoFrame currentFrame = new VideoFrame(InputPixelFormat, (int)videoProperties.Width, (int)videoProperties.Height))
                 {
-                    await this.captureManager.GetPreviewFrameAsync(currentFrame);
+                    await captureManager.GetPreviewFrameAsync(currentFrame);
 
                     // The returned VideoFrame should be in the supported NV12 format but we need to verify this.
                     if (FaceDetector.IsBitmapPixelFormatSupported(currentFrame.SoftwareBitmap.BitmapPixelFormat))
                     {
-                        faces = await this.faceTracker.ProcessNextFrameAsync(currentFrame);
+                        faces = await faceTracker.ProcessNextFrameAsync(currentFrame);
 
-                        if (this.FilterOutSmallFaces)
+                        if (FilterOutSmallFaces)
                         {
                             // We filter out small faces here. 
-                            faces = faces.Where(f => CoreUtil.IsFaceBigEnoughForDetection((int)f.FaceBox.Height, (int)this.videoProperties.Height));
+                            faces = faces.Where(f => CoreUtil.IsFaceBigEnoughForDetection((int)f.FaceBox.Height, (int)videoProperties.Height));
                         }
 
-                        this.NumFacesOnLastFrame = faces.Count();
+                        NumFacesOnLastFrame = faces.Count();
 
-                        if (this.EnableAutoCaptureMode)
+                        if (EnableAutoCaptureMode)
                         {
-                            this.UpdateAutoCaptureState(faces);
+                            UpdateAutoCaptureState(faces);
                         }
 
                         // Create our visualization using the frame dimensions and face results but run it on the UI thread.
                         var currentFrameSize = new Windows.Foundation.Size(currentFrame.SoftwareBitmap.PixelWidth, currentFrame.SoftwareBitmap.PixelHeight);
-                        var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                        {
-                            this.HandleFaces(currentFrameSize, faces);
-                        });
+
+                        var rgbaBitmap = SoftwareBitmap.Convert(currentFrame.SoftwareBitmap, BitmapPixelFormat.Rgba8);
+
+                        HandleFaces(currentFrameSize, faces, rgbaBitmap);
                     }
                 }
             }
@@ -283,40 +285,52 @@ namespace WhatHaveIBeenDrinking.Controls
             }
         }
 
-        private void HandleFaces(Windows.Foundation.Size framePixelSize, IEnumerable<DetectedFace> detectedFaces)
+
+        private void HandleFaces(Windows.Foundation.Size framePixelSize, IEnumerable<DetectedFace> detectedFaces, SoftwareBitmap currentFrame)
         {
-            this.FaceTrackingVisualizationCanvas.Children.Clear();
+            //var ignored = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            //{
+            //    FaceTrackingVisualizationCanvas.Children.Clear();
+            //});
+            
 
-            double actualWidth = this.FaceTrackingVisualizationCanvas.ActualWidth;
-            double actualHeight = this.FaceTrackingVisualizationCanvas.ActualHeight;
+            //double actualWidth = FaceTrackingVisualizationCanvas.ActualWidth;
+            //double actualHeight = FaceTrackingVisualizationCanvas.ActualHeight;
 
-            if (captureManager.CameraStreamState == Windows.Media.Devices.CameraStreamState.Streaming &&
-                detectedFaces != null && actualWidth != 0 && actualHeight != 0)
+            if (captureManager.CameraStreamState == CameraStreamState.Streaming &&
+                detectedFaces != null /*&& actualWidth != 0 && actualHeight != 0*/)
             {
-                double widthScale = framePixelSize.Width / actualWidth;
-                double heightScale = framePixelSize.Height / actualHeight;
+                //double widthScale = framePixelSize.Width / actualWidth;
+                //double heightScale = framePixelSize.Height / actualHeight;
 
                 List<BitmapBounds> currentFaces = new List<BitmapBounds>();
                 List<BitmapBounds> missingFaces = new List<BitmapBounds>();
 
                 foreach (DetectedFace detectedFace in detectedFaces)
                 {
-                    RealTimeFaceIdentificationBorder faceBorder = new RealTimeFaceIdentificationBorder();
-                    this.FaceTrackingVisualizationCanvas.Children.Add(faceBorder);
+                    //RealTimeFaceIdentificationBorder faceBorder = new RealTimeFaceIdentificationBorder();
+                    //this.FaceTrackingVisualizationCanvas.Children.Add(faceBorder);
 
-                    faceBorder.ShowFaceRectangle((uint)(detectedFace.FaceBox.X / widthScale), (uint)(detectedFace.FaceBox.Y / heightScale), (uint)(detectedFace.FaceBox.Width / widthScale), (uint)(detectedFace.FaceBox.Height / heightScale));
+                    //faceBorder.ShowFaceRectangle((uint)(detectedFace.FaceBox.X / widthScale), (uint)(detectedFace.FaceBox.Y / heightScale), (uint)(detectedFace.FaceBox.Width / widthScale), (uint)(detectedFace.FaceBox.Height / heightScale));
+
+                    if (currentFrame == null)
+                    {
+                        continue;
+                    }
 
                     var potentialMatches = ActiveFaces.Where(existingFace =>
                     {
                         return CoreUtil.AreFacesPotentiallyTheSame(existingFace, detectedFace.FaceBox);
                     });
 
+
                     // Is this a new face to us?
                     if (potentialMatches.Count() == 0)
                     {
                         var eventArgs = new FaceDetectedEventArgs()
                         {
-                            Face = detectedFace
+                            Face = detectedFace,
+                            Bitmap = currentFrame
                         };
 
                         FaceDetected(this, eventArgs);
