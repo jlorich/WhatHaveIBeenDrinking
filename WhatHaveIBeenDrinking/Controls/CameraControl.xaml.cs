@@ -229,9 +229,48 @@ namespace WhatHaveIBeenDrinking.Controls
             }
         }
 
+
+        public async Task<SoftwareBitmap> GetFrame()
+        {
+            if (captureManager.CameraStreamState != CameraStreamState.Streaming || !frameProcessingSemaphore.Wait(100))
+            {
+                return null;
+            }
+
+            try
+            {
+
+                // Create a VideoFrame object specifying the pixel format we want our capture image to be (NV12 bitmap in this case).
+                // GetPreviewFrame will convert the native webcam frame into this format.
+                const BitmapPixelFormat InputPixelFormat = BitmapPixelFormat.Rgba8;
+
+                using (VideoFrame currentFrame = new VideoFrame(InputPixelFormat, (int)videoProperties.Width, (int)videoProperties.Height))
+                {
+                    await captureManager.GetPreviewFrameAsync(currentFrame);
+                    
+                    // Create our visualization using the frame dimensions and face results but run it on the UI thread.
+                    var currentFrameSize = new Windows.Foundation.Size(currentFrame.SoftwareBitmap.PixelWidth, currentFrame.SoftwareBitmap.PixelHeight);
+
+                    var rgbaBitmap = SoftwareBitmap.Convert(currentFrame.SoftwareBitmap, BitmapPixelFormat.Rgba8);
+
+                    return rgbaBitmap;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                frameProcessingSemaphore.Release();
+            }
+
+            return null;
+        }
+
+
         private async void ProcessCurrentVideoFrame(ThreadPoolTimer timer)
         {
-            if (captureManager.CameraStreamState != Windows.Media.Devices.CameraStreamState.Streaming
+            if (captureManager.CameraStreamState != CameraStreamState.Streaming
                 || !frameProcessingSemaphore.Wait(0))
             {
                 return;
@@ -333,7 +372,7 @@ namespace WhatHaveIBeenDrinking.Controls
                             Bitmap = currentFrame
                         };
 
-                        FaceDetected(this, eventArgs);
+                        FaceDetected?.Invoke(this, eventArgs);
                     }
 
                     currentFaces.Add(detectedFace.FaceBox);
@@ -589,38 +628,5 @@ namespace WhatHaveIBeenDrinking.Controls
                 this.AutoCaptureStateChanged(this, state);
             }
         }
-
-        //#endregion
-
-        //public void HideCameraControls()
-        //{
-        //    this.commandBar.Visibility = Visibility.Collapsed;
-        //}
-
-        //public void SetRealTimeDataProvider(IRealTimeDataProvider provider)
-        //{
-        //    this.realTimeDataProvider = provider;
-        //}
-
-        //private async void CameraControlButtonClick(object sender, RoutedEventArgs e)
-        //{
-        //    if (this.cameraControlSymbol.Symbol == Symbol.Camera)
-        //    {
-        //        var img = await CaptureFrameAsync();
-        //        if (img != null)
-        //        {
-        //            this.cameraControlSymbol.Symbol = Symbol.Refresh;
-        //            this.OnImageCaptured(img);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.cameraControlSymbol.Symbol = Symbol.Camera;
-
-        //        await StartStreamAsync();
-
-        //        this.CameraRestarted?.Invoke(this, EventArgs.Empty);
-        //    }
-        //}
     }
 }

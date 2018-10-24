@@ -20,11 +20,12 @@ using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using Windows.Storage;
 using Newtonsoft.Json;
+using WhatHaveIBeenDrinking.Options;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using WhatHaveIBeenDrinking.Repositories;
+using WhatHaveIBeenDrinking.Services;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
-
-// image uri https://southcentralus.api.cognitive.microsoft.com/customvision/v2.0/Prediction/8f150ff3-f5a9-4fca-88e8-d307c094e10a/image?iterationId=5a41a5ab-ed3e-4c25-aebe-eb00c24c5be0
 namespace WhatHaveIBeenDrinking
 {
     /// <summary>
@@ -32,37 +33,42 @@ namespace WhatHaveIBeenDrinking
     /// </summary>
     public sealed partial class MainPage : Page
     {
-
         private const string SETTINGS_FILE_LOCATION = "appsettings.json";
-        private WhatHaveIBeenDrinkingSettings _Settings;
 
-        private WhatHaveIBeenDrinkingSettings Settings
-        {
-            get
-            {
-                if (_Settings != null)
-                {
-                    return _Settings;
-                }
+        private static IConfiguration _Configuration;
 
-                var packageFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-                var file = packageFolder.GetFileAsync(SETTINGS_FILE_LOCATION).GetAwaiter().GetResult();
-                var data = FileIO.ReadTextAsync(file).GetAwaiter().GetResult();
-                _Settings = JsonConvert.DeserializeObject<WhatHaveIBeenDrinkingSettings>(data);
+        private static IServiceCollection _Services;
 
-                return _Settings;
-            }
-        }
-
+        private static IServiceProvider _ServiceProvider;
 
         public MainPage()
         {
             InitializeComponent();
-            //var cameraCaptureService = new CameraCaptureService();
-            //var faceRecognitionService = new FaceRecognitionService();
+            BuildConfiguration();
+            ConfigureServices();
+        }
+        
+        public static void ConfigureServices()
+        {
+            _Services = new ServiceCollection();
 
-            //var photo = cameraCaptureService.Capture().GetAwaiter().GetResult();
-            //faceRecognitionService.Recognize(photo);
+            _Services.AddOptions();
+            _Services.Configure<KioskOptions>(_Configuration);
+            _Services.AddTransient<KioskRepository>();
+            _Services.AddTransient<ImageClassificationService>();
+            _Services.AddTransient<KioskService>();
+
+            _ServiceProvider = _Services.BuildServiceProvider();
+        }
+
+        public static void BuildConfiguration()
+        {
+            var packageFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+
+            _Configuration = new ConfigurationBuilder()
+                .SetBasePath(packageFolder.Path.ToString())
+                .AddJsonFile(SETTINGS_FILE_LOCATION, optional: true, reloadOnChange: true)
+                .Build();
         }
 
         private async void CurrentWindowActivationStateChanged(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
@@ -77,99 +83,42 @@ namespace WhatHaveIBeenDrinking
             }
         }
 
+        private async void Button_camera_Click(object sender, RoutedEventArgs e)
+        {
+            var frame = await cameraControl.GetFrame();
+
+            if (frame == null)
+            {
+                return;
+            }
+
+            var kioskService = _ServiceProvider.GetService<KioskService>();
+
+            var result = await kioskService.IdentifyDrink(frame);
+
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                if (result == null)
+                {
+                    CurrentDrinkName.Text = "No drinks detected";
+                }
+                else
+                {
+                    CurrentDrinkName.Text = $"{result.IdentifiedTag} - {result.Probability} - {result.Name}";
+                }
+            });
+        }
+
         private void OnFaceDetectedAsync(object sender, FaceDetectedEventArgs args)
         {
             Console.Out.WriteLine("Face detected");
-
-            PredictImage(args.Bitmap).GetAwaiter().GetResult();
-
         }
-
-        private async Task PredictImage(SoftwareBitmap bitmap)
-        {
-            var endpoint = new PredictionEndpoint()
-            {
-                ApiKey = Settings.CognitiveServicesCustomVisionApiKey
-            };
-
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
-
-                encoder.SetSoftwareBitmap(bitmap);
-
-                await encoder.FlushAsync();
-
-                var result = endpoint.PredictImage(
-                    Settings.CognitiveServicesCustomVisionProjectId,
-                    stream.AsStream(),
-                    Settings.CognitiveServicesCustomVisionIterationId
-                );
-
-                double highestProbability = 0;
-                ImageTagPredictionModel predictedModel = null;
-
-                foreach(var prediction in result.Predictions)
-                {
-                    if (prediction.Probability > highestProbability)
-                    {
-                        highestProbability = prediction.Probability;
-                        predictedModel = prediction;
-                    }
-                }
-                
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    if (predictedModel != null && highestProbability > .25)
-                    {
-                        CurrentDrinkName.Text = $"{predictedModel.Tag} - {predictedModel.Probability}";
-                    } else
-                    {
-                        CurrentDrinkName.Text = "No drinks detected";
-                    }
-                });
-                
-            }
-        }
-
-
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            cameraControl.FaceDetected += OnFaceDetectedAsync;
+            //cameraControl.FaceDetected += OnFaceDetectedAsync;
 
             await cameraControl.StartStreamAsync(isForRealTimeProcessing: true);
-
-            //EnterKioskMode();
-
-            //if (string.IsNullOrEmpty(SettingsHelper.Instance.FaceApiKey))
-            //{
-            //    await new MessageDialog("Missing Face API Key. Please enter a key in the Settings page.", "Missing API Key").ShowAsync();
-            //}
-            //else
-            //{
-            //    FaceListManager.FaceListsUserDataFilter = SettingsHelper.Instance.WorkspaceKey + "_RealTime";
-            //    await FaceListManager.Initialize();
-
-            //    await ResetDemographicsData();
-            //    this.UpdateDemographicsUI();
-
-                
-            //    this.StartProcessingLoop();
-            //}
-
-            ////get a reference to SenseHat
-            //try
-            //{
-            //    senseHat = await SenseHatFactory.GetSenseHat();
-
-            //    senseHat.Display.Clear();
-            //    senseHat.Display.Update();
-
-            //}
-            //catch (Exception)
-            //{
-            //}
 
             base.OnNavigatedTo(e);
         }

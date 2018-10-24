@@ -6,10 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="Black">
     
     <RelativePanel>
-        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="CurrentDrinkName" />
+        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="CurrentDrinkName" Background="Black" />
         <TextBlock x:Name="CurrentDrinkName" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Helloooo" FontWeight="Bold" FontSize="14" Height="25" HorizontalAlignment="Center" Foreground="White" />
+        <Button x:Name="button_camera" Click="Button_camera_Click">
+            <Image Source="/Assets/cameraicon.png" Width="99" />
+        </Button>
     </RelativePanel>
 </Page>
