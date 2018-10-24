@@ -9,8 +9,9 @@
     Background="Black">
     
     <RelativePanel>
-        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="CurrentDrinkName" Background="Black" />
-        <TextBlock x:Name="CurrentDrinkName" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" />
+        <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="TextBlock_Name" Background="Black" />
+        <TextBlock x:Name="TextBlock_Name" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Name" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" RelativePanel.AlignBottomWith="TextBlock_Description" />
+        <TextBlock x:Name="TextBlock_Description" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Description" Foreground="White" HorizontalAlignment="Center" />
         <Image x:Name="Image_Logo" Width="300" Height="150" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
         <Button x:Name="button_camera" Click="Button_camera_Click">
             <Image Source="/Assets/cameraicon.png" Width="99" />

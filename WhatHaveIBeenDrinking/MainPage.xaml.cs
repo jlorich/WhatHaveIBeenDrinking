@@ -99,17 +99,16 @@ namespace WhatHaveIBeenDrinking
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                if (result == null)
+                if (string.IsNullOrEmpty(result.Name))
                 {
-                    CurrentDrinkName.Text = "No drinks detected";
+                    TextBlock_Name.Text = "No drinks detected";
+                    TextBlock_Description.Text = "";
+                    Image_Logo.Source = null;
                 }
                 else
                 {
-                    CurrentDrinkName.Text = $"{result.Name}";
-                }
-
-                if(!string.IsNullOrEmpty(result.ImageUrl))
-                {
+                    TextBlock_Name.Text = result.Name;
+                    TextBlock_Description.Text = result.Description;
                     Image_Logo.Source = new BitmapImage(new Uri(result.ImageUrl, UriKind.Absolute));
                 }
             });
