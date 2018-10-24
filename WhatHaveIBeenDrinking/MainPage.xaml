@@ -10,7 +10,8 @@
     
     <RelativePanel>
         <ctl:CameraControl x:Name="cameraControl" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWith="CurrentDrinkName" Background="Black" />
-        <TextBlock x:Name="CurrentDrinkName" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Helloooo" FontWeight="Bold" FontSize="14" Height="25" HorizontalAlignment="Center" Foreground="White" />
+        <TextBlock x:Name="CurrentDrinkName" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" />
+        <Image x:Name="Image_Logo" Width="300" Height="150" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
         <Button x:Name="button_camera" Click="Button_camera_Click">
             <Image Source="/Assets/cameraicon.png" Width="99" />
         </Button>

@@ -25,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WhatHaveIBeenDrinking.Repositories;
 using WhatHaveIBeenDrinking.Services;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace WhatHaveIBeenDrinking
 {
@@ -104,7 +105,12 @@ namespace WhatHaveIBeenDrinking
                 }
                 else
                 {
-                    CurrentDrinkName.Text = $"{result.IdentifiedTag} - {result.Probability} - {result.Name}";
+                    CurrentDrinkName.Text = $"{result.Name}";
+                }
+
+                if(!string.IsNullOrEmpty(result.ImageUrl))
+                {
+                    Image_Logo.Source = new BitmapImage(new Uri(result.ImageUrl, UriKind.Absolute));
                 }
             });
         }
