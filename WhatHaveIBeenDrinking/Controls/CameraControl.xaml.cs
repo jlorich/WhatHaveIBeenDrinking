@@ -72,6 +72,9 @@ namespace WhatHaveIBeenDrinking.Controls
     {
         public event EventHandler<FaceDetectedEventArgs> FaceDetected;
 
+        public event EventHandler FaceDetectionStarted;
+        public event EventHandler FacesNoLongerDetected;
+
         public event EventHandler<AutoCaptureState> AutoCaptureStateChanged;
         public event EventHandler CameraRestarted;
         public event EventHandler CameraAspectRatioChanged;
@@ -163,25 +166,24 @@ namespace WhatHaveIBeenDrinking.Controls
 
                 if (captureManager.CameraStreamState == CameraStreamState.NotStreaming)
                 {
-                    if (this.faceTracker == null)
+                    if (faceTracker == null)
                     {
-                        this.faceTracker = await FaceTracker.CreateAsync();
+                        faceTracker = await FaceTracker.CreateAsync();
                     }
 
-                    this.videoProperties = this.captureManager.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
+                    videoProperties = this.captureManager.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
 
                     await captureManager.StartPreviewAsync();
 
-                    if (this.frameProcessingTimer != null)
+                    if (frameProcessingTimer != null)
                     {
-                        this.frameProcessingTimer.Cancel();
+                        frameProcessingTimer.Cancel();
                         frameProcessingSemaphore.Release();
                     }
                     TimeSpan timerInterval = TimeSpan.FromMilliseconds(66); //15fps
-                    this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(new TimerElapsedHandler(ProcessCurrentVideoFrame), timerInterval);
+                    frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(new TimerElapsedHandler(ProcessCurrentVideoFrame), timerInterval);
 
-                    //this.cameraControlSymbol.Symbol = Symbol.Camera;
-                    this.webCamCaptureElement.Visibility = Visibility.Visible;
+                    webCamCaptureElement.Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -232,14 +234,13 @@ namespace WhatHaveIBeenDrinking.Controls
 
         public async Task<SoftwareBitmap> GetFrame()
         {
-            if (captureManager.CameraStreamState != CameraStreamState.Streaming || !frameProcessingSemaphore.Wait(100))
+            if (captureManager.CameraStreamState != CameraStreamState.Streaming || !frameProcessingSemaphore.Wait(500))
             {
                 return null;
             }
 
             try
             {
-
                 // Create a VideoFrame object specifying the pixel format we want our capture image to be (NV12 bitmap in this case).
                 // GetPreviewFrame will convert the native webcam frame into this format.
                 const BitmapPixelFormat InputPixelFormat = BitmapPixelFormat.Rgba8;
@@ -362,7 +363,6 @@ namespace WhatHaveIBeenDrinking.Controls
                         return CoreUtil.AreFacesPotentiallyTheSame(existingFace, detectedFace.FaceBox);
                     });
 
-
                     // Is this a new face to us?
                     if (potentialMatches.Count() == 0)
                     {
@@ -372,59 +372,20 @@ namespace WhatHaveIBeenDrinking.Controls
                             Bitmap = currentFrame
                         };
 
+                        if (!ActiveFaces.Any())
+                        {
+                            FaceDetectionStarted?.Invoke(this, new EventArgs());
+                        }
+
                         FaceDetected?.Invoke(this, eventArgs);
                     }
 
                     currentFaces.Add(detectedFace.FaceBox);
+                }
 
-
-                    //if (this.realTimeDataProvider != null)
-                    //{
-                    //    Face detectedFace = this.realTimeDataProvider.GetLastFaceAttributesForFace(face.FaceBox);
-                    //    IdentifiedPerson identifiedPerson = this.realTimeDataProvider.GetLastIdentifiedPersonForFace(face.FaceBox);
-                    //    SimilarPersistedFace similarPersistedFace = this.realTimeDataProvider.GetLastSimilarPersistedFaceForFace(face.FaceBox);
-
-                    //    string uniqueId = null;
-                    //    if (similarPersistedFace != null)
-                    //    {
-                    //        uniqueId = similarPersistedFace.PersistedFaceId.ToString("N").Substring(0, 4);
-                    //    }
-
-                    //    if (detectedFace != null && detectedFace.FaceAttributes != null)
-                    //    {
-                    //        if (identifiedPerson != null && identifiedPerson.Person != null)
-                    //        {
-                    //            // age, gender and id available
-                    //            faceBorder.ShowIdentificationData(detectedFace.FaceAttributes.Age, detectedFace.FaceAttributes.Gender, (uint)Math.Round(identifiedPerson.Confidence * 100), identifiedPerson.Person.Name, uniqueId: uniqueId);
-                    //        }
-                    //        else
-                    //        {
-                    //            // only age and gender available
-                    //            faceBorder.ShowIdentificationData(detectedFace.FaceAttributes.Age, detectedFace.FaceAttributes.Gender, 0, null, uniqueId: uniqueId);
-                    //        }
-
-                    //        faceBorder.ShowRealTimeEmotionData(detectedFace.FaceAttributes.Emotion);
-                    //    }
-                    //    else if (identifiedPerson != null && identifiedPerson.Person != null)
-                    //    {
-                    //        // only id available
-                    //        faceBorder.ShowIdentificationData(0, null, (uint)Math.Round(identifiedPerson.Confidence * 100), identifiedPerson.Person.Name, uniqueId: uniqueId);
-                    //    }
-                    //    else if (uniqueId != null)
-                    //    {
-                    //        // only unique id available
-                    //        faceBorder.ShowIdentificationData(0, null, 0, null, uniqueId: uniqueId);
-                    //    }
-                    //}
-
-                    //if (SettingsHelper.Instance.ShowDebugInfo)
-                    //{
-                    //    this.FaceTrackingVisualizationCanvas.Children.Add(new TextBlock
-                    //    {
-                    //        Text = string.Format("Coverage: {0:0}%", 100 * ((double)face.FaceBox.Height / this.videoProperties.Height)),
-                    //        Margin = new Thickness((uint)(face.FaceBox.X / widthScale), (uint)(face.FaceBox.Y / heightScale), 0, 0)
-                    //    });
-                    //}
+                if (currentFaces.Count == 0)
+                {
+                    FacesNoLongerDetected?.Invoke(this, new EventArgs());
                 }
 
                 ActiveFaces = currentFaces;

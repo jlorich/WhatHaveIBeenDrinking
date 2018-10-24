@@ -26,6 +26,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WhatHaveIBeenDrinking.Repositories;
 using WhatHaveIBeenDrinking.Services;
 using Windows.UI.Xaml.Media.Imaging;
+using System.Timers;
 
 namespace WhatHaveIBeenDrinking
 {
@@ -41,6 +42,10 @@ namespace WhatHaveIBeenDrinking
         private static IServiceCollection _Services;
 
         private static IServiceProvider _ServiceProvider;
+
+        private Timer _PhotoTimer;
+
+        private Timer _TimeoutTimer;
 
         public MainPage()
         {
@@ -84,14 +89,32 @@ namespace WhatHaveIBeenDrinking
             }
         }
 
-        private async void Button_camera_Click(object sender, RoutedEventArgs e)
+        private void StartTimer()
         {
+            _PhotoTimer.Start();
+        }
+
+        private void StopTimer()
+        {
+            _PhotoTimer.Stop();
+        }
+
+        private async void OnTimerElapsed(Object source, ElapsedEventArgs e)
+        {
+            await CheckForDrinks();
+        }
+
+        private async Task CheckForDrinks()
+        {
+            try
+            {
+
             var frame = await cameraControl.GetFrame();
 
             if (frame == null)
             {
                 return;
-            }
+            } 
 
             var kioskService = _ServiceProvider.GetService<KioskService>();
 
@@ -99,9 +122,9 @@ namespace WhatHaveIBeenDrinking
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                if (string.IsNullOrEmpty(result.Name))
+                if (string.IsNullOrEmpty(result?.Name))
                 {
-                    TextBlock_Name.Text = "No drinks detected";
+                    TextBlock_Name.Text = "Searching for beers..." + result.IdentifiedTag;
                     TextBlock_Description.Text = "";
                     Image_Logo.Source = null;
                 }
@@ -112,16 +135,68 @@ namespace WhatHaveIBeenDrinking
                     Image_Logo.Source = new BitmapImage(new Uri(result.ImageUrl, UriKind.Absolute));
                 }
             });
+
+            } catch (Exception ex) {
+
+            }
         }
 
-        private void OnFaceDetectedAsync(object sender, FaceDetectedEventArgs args)
+        private async void OnFaceDetectionStartedAsync(Object sender, EventArgs args)
         {
-            Console.Out.WriteLine("Face detected");
+            _TimeoutTimer.Enabled = false;
+            if (_PhotoTimer.Enabled)
+            {
+                return;
+            }
+
+            
+
+            StartTimer();
+
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                TextBlock_Name.Text = "Searching for beers...";
+                TextBlock_Description.Text = "";
+                Image_Logo.Source = null;
+            });
+        }
+
+
+        private void OnFacesNoLongerDetected(Object sender, EventArgs args)
+        {
+            if (_TimeoutTimer.Enabled)
+            {
+                return;
+            }
+
+            _TimeoutTimer.Start();
+        }
+
+        private async void NoOneIsPresent(Object sender, EventArgs args)
+        {
+            StopTimer();
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                TextBlock_Name.Text = "Try moving a little closer...";
+                TextBlock_Description.Text = "";
+                Image_Logo.Source = null;
+            });
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            //cameraControl.FaceDetected += OnFaceDetectedAsync;
+            cameraControl.FaceDetectionStarted += OnFaceDetectionStartedAsync;
+            cameraControl.FacesNoLongerDetected += OnFacesNoLongerDetected;
+
+            _PhotoTimer = new Timer(3000);
+            _PhotoTimer.Elapsed += OnTimerElapsed;
+            _PhotoTimer.AutoReset = true;
+            _PhotoTimer.Enabled = false;
+
+            _TimeoutTimer = new Timer(15000);
+            _TimeoutTimer.Elapsed += NoOneIsPresent;
+            _TimeoutTimer.Enabled = false;
+            
 
             await cameraControl.StartStreamAsync(isForRealTimeProcessing: true);
 

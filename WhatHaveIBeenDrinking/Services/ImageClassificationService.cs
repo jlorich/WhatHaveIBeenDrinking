@@ -32,7 +32,7 @@ namespace WhatHaveIBeenDrinking.Services
             using (var stream = new InMemoryRandomAccessStream())
             {
                 var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
-
+                encoder.BitmapTransform.Flip = BitmapFlip.Horizontal;
                 encoder.SetSoftwareBitmap(bitmap);
 
                 await encoder.FlushAsync();
