@@ -18,6 +18,7 @@ using Windows.Storage.Streams;
 using Windows.Graphics.Imaging;
 using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
+using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Windows.Storage;
 using Newtonsoft.Json;
 using WhatHaveIBeenDrinking.Options;
@@ -56,7 +57,20 @@ namespace WhatHaveIBeenDrinking
             _Services.Configure<KioskOptions>(_Configuration);
             _Services.AddTransient<KioskRepository>();
             _Services.AddTransient<ImageClassificationService>();
+            _Services.AddTransient<FaceIdentificationService>();
             _Services.AddTransient<KioskService>();
+
+            _Services.AddTransient<IFaceClient>(sp => {
+
+                var client = new FaceClient(
+                    new ApiKeyServiceClientCredentials(_Configuration.GetValue<string>("CognitiveServicesFaceApiKey")),
+                    new System.Net.Http.DelegatingHandler[] { }
+                );
+
+                client.Endpoint = _Configuration.GetValue<string>("CognitiveServicesFaceEndpoint");
+
+                return client;
+            });
 
             _ServiceProvider = _Services.BuildServiceProvider();
         }
@@ -95,6 +109,9 @@ namespace WhatHaveIBeenDrinking
             var kioskService = _ServiceProvider.GetService<KioskService>();
 
             var result = await kioskService.IdentifyDrink(frame);
+
+            // CDW => 4c413411-ae9d-4475-876d-6be318f9bf6e
+            var face = await kioskService.IdentifyFace(frame);
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {

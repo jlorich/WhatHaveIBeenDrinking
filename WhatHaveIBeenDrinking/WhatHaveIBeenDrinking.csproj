@@ -111,6 +111,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\KioskRepository.cs" />
     <Compile Include="Services\DrinkIdentificationResult.cs" />
+    <Compile Include="Services\FaceIdentificationResult.cs" />
     <Compile Include="Services\FaceIdentificationService.cs" />
     <Compile Include="Services\ImageClassificationResult.cs" />
     <Compile Include="Services\ImageClassificationService.cs" />
