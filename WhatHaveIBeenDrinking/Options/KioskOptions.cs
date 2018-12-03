@@ -20,5 +20,7 @@ namespace WhatHaveIBeenDrinking.Options
         public string AzureCosmosDBName { get; set; }
 
         public string AzureCosmosDBCollectionName { get; set; }
+
+        public string AzureStorageConnection { get; set; }
     }
 }

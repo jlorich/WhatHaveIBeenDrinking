@@ -4,9 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using WhatHaveIBeenDrinking.Controls;
+using System.Timers;
+using System.Diagnostics;
+
+using Windows.Storage;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -16,19 +20,22 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Storage.Streams;
 using Windows.Graphics.Imaging;
+using Windows.UI.Xaml.Media.Imaging;
+
 using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
-using Windows.Storage;
-using Newtonsoft.Json;
-using WhatHaveIBeenDrinking.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+
+using Newtonsoft.Json;
+
+using WhatHaveIBeenDrinking.Options;
+using WhatHaveIBeenDrinking.Controls;
 using WhatHaveIBeenDrinking.Repositories;
 using WhatHaveIBeenDrinking.Services;
-using Windows.UI.Xaml.Media.Imaging;
-using System.Timers;
-using System.Diagnostics;
 
 namespace WhatHaveIBeenDrinking {
 
@@ -38,6 +45,7 @@ namespace WhatHaveIBeenDrinking {
     public sealed partial class MainPage : Page {
 
         private const string SETTINGS_FILE_LOCATION = "appsettings.json";
+        private const bool SAVE_SCREEN_GRABS = true;
 
         private static IConfiguration _Configuration;
 
@@ -72,6 +80,7 @@ namespace WhatHaveIBeenDrinking {
 
             _Services.AddOptions();
             _Services.Configure<KioskOptions>(_Configuration);
+            _Services.AddTransient<CloudStorageAccount>(sp => CloudStorageAccount.Parse(_Configuration.GetValue<string>("AzureStorageConnection")));
             _Services.AddTransient<KioskRepository>();
             _Services.AddTransient<ImageClassificationService>();
             _Services.AddTransient<IUserService, UserService>();
@@ -136,19 +145,23 @@ namespace WhatHaveIBeenDrinking {
                     return;
                 }
 
+                // Create a correlationId for grouping everything together
+                var correlationId = Guid.NewGuid();
+
                 // Start the tasks to identify the Drink and the User
-                var drinkTask = this.IdentifyDrink(frame);
-                var userTask = this.IdentifyUser(frame);
+                var drinkTask = this.IdentifyDrink(frame, correlationId);
+                var userTask = this.IdentifyUser(frame, correlationId);
+                var imageTask = this.SaveImage(frame, correlationId);
 
                 // Make sure both Tasks finish
-                await Task.WhenAll(drinkTask, userTask);
+                await Task.WhenAll(drinkTask, userTask, imageTask);
             }
             catch (Exception /*ex*/) {
 
             }
         }
 
-        private async Task IdentifyDrink(SoftwareBitmap frame) {
+        private async Task IdentifyDrink(SoftwareBitmap frame, Guid correlationId) {
 
             var kioskService = _ServiceProvider.GetService<KioskService>();
             var result = await kioskService.IdentifyDrink(frame);
@@ -168,13 +181,34 @@ namespace WhatHaveIBeenDrinking {
             });
         }
 
-        private async Task IdentifyUser(SoftwareBitmap frame) {
+        private async Task IdentifyUser(SoftwareBitmap frame, Guid correlationId) {
 
             var userService = _ServiceProvider.GetService<IUserService>();
-            var user = await userService.IdentifyUserAsync(frame);
+            var user = await userService.IdentifyUserAsync(frame, correlationId);
 
             // TODO: Show the user information here
             Trace.TraceInformation($"Setting name '{user.Name}'...");
+        }
+
+        private async Task SaveImage(SoftwareBitmap bitmap, Guid correlationId) {
+
+            if (SAVE_SCREEN_GRABS == true) { 
+
+                using (var stream = new InMemoryRandomAccessStream()) {
+
+                    // Get the stream for usage
+                    var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+                    encoder.SetSoftwareBitmap(bitmap);
+                    await encoder.FlushAsync();
+
+                    var cloudStorage = _ServiceProvider.GetService<CloudStorageAccount>();
+                    var blob = cloudStorage.CreateCloudBlobClient().GetContainerReference("screengrabs").GetBlockBlobReference($"{DateTime.UtcNow.ToString("yyyyMMddhhmmss")}-{correlationId}.jpg");
+                    await blob.UploadFromStreamAsync(stream.AsStream());
+
+                    blob.Metadata.Add(new KeyValuePair<string, string>("CorrelationId", correlationId.ToString()));
+                    await blob.SetMetadataAsync();
+                }
+            }
         }
 
         private async void OnFaceDetectionStartedAsync(Object sender, EventArgs args) {
