@@ -13,17 +13,14 @@ namespace WhatHaveIBeenDrinking.Services
     public class KioskService
     {
         private ImageClassificationService _ClassificationService;
-        private FaceIdentificationService _FaceService;
         private KioskRepository _KioskRepository;
 
         public KioskService(
             ImageClassificationService classificationService, 
-            FaceIdentificationService faceService,
             KioskRepository repository
         )
         {
             _ClassificationService = classificationService;
-            _FaceService = faceService;
             _KioskRepository = repository;
         }
 
@@ -46,19 +43,6 @@ namespace WhatHaveIBeenDrinking.Services
                 ImageUrl = displayData?.ImageUrl,
                 Probability = classificationResult.Probability,
                 IdentifiedTag = classificationResult.Tag
-            };
-        }
-
-        public async Task<FaceIdentificationResult> IdentifyFace(SoftwareBitmap bitmap) {
-
-            var face = await _FaceService.AnalyzeImage(bitmap);
-
-            return new FaceIdentificationResult {
-                FaceId = face.FaceId,
-                Emotion = JsonConvert.DeserializeObject<Emotion>(JsonConvert.SerializeObject(face.FaceAttributes.Emotion)),
-                Age = face.FaceAttributes.Age,
-                Gender = JsonConvert.DeserializeObject<Gender>(JsonConvert.SerializeObject(face.FaceAttributes.Gender)),
-                Smile = face.FaceAttributes.Smile
             };
         }
     }
