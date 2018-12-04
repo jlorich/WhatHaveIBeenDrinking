@@ -107,11 +107,12 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\User.cs" />
     <Compile Include="Options\KioskOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\KioskRepository.cs" />
     <Compile Include="Services\DrinkIdentificationResult.cs" />
-    <Compile Include="Services\FaceIdentificationService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\ImageClassificationResult.cs" />
     <Compile Include="Services\ImageClassificationService.cs" />
     <Compile Include="Services\KioskService.cs" />
@@ -187,6 +188,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="WindowsAzure.Storage">
+      <Version>9.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

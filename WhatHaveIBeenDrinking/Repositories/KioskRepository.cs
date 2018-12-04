@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Linq;
+
 using WhatHaveIBeenDrinking.Options;
 using WhatHaveIBeenDrinking.Entities;
 

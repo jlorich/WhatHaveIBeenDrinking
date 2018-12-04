@@ -6,14 +6,19 @@ using System.Threading.Tasks;
 using WhatHaveIBeenDrinking.Repositories;
 using Windows.Graphics.Imaging;
 
+using Newtonsoft.Json;
+
 namespace WhatHaveIBeenDrinking.Services
 {
     public class KioskService
     {
-        ImageClassificationService _ClassificationService;
-        KioskRepository _KioskRepository;
+        private ImageClassificationService _ClassificationService;
+        private KioskRepository _KioskRepository;
 
-        public KioskService(ImageClassificationService classificationService, KioskRepository repository)
+        public KioskService(
+            ImageClassificationService classificationService, 
+            KioskRepository repository
+        )
         {
             _ClassificationService = classificationService;
             _KioskRepository = repository;
