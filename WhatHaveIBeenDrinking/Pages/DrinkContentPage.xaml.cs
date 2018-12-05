@@ -59,28 +59,29 @@ namespace WhatHaveIBeenDrinking.Pages
                 Image_Bottle.Source = new BitmapImage(new Uri(drink.BottleImageUrl));
             }
 
+            _NavigationTimer = new DispatcherTimer();
+            _NavigationTimer.Interval = new TimeSpan(0, 0, NAVIGATION_DURATION);
+            _NavigationTimer.Tick += ReturnToHome;
+
             // Determine next content source
             var content = SelectRandomContentForDrink(drink);
 
-            // Navigate to next content source after timer expiration
-            _NavigationTimer = new DispatcherTimer();
-            _NavigationTimer.Interval = new TimeSpan(0, 0, NAVIGATION_DURATION);
-
-            var param = new Tuple<Drink, Content>(drink, content);
-
-            switch (content.Type)
+            if (content != null)
             {
-                case "Video":
-                    _NavigationTimer.Tick += (sender, args) => GoToVideoContent(param);
-                    break;
-                case "Text":
-                    _NavigationTimer.Tick += (sender, args) => GoToTextContent(param);
-                    break;
-                default:
-                    _NavigationTimer.Tick += ReturnToHome;
-                    break;
+                var param = new Tuple<Drink, Content>(drink, content);
+
+                switch (content.Type)
+                {
+                    case "Video":
+                        _NavigationTimer.Tick += (sender, args) => GoToVideoContent(param);
+                        break;
+                    case "Text":
+                        _NavigationTimer.Tick += (sender, args) => GoToTextContent(param);
+                        break;
+                }
             }
 
+            // Navigate to next content source after timer expiration
             _NavigationTimer.Start();
         }
 

@@ -177,6 +177,8 @@ namespace WhatHaveIBeenDrinking {
                 c3.Width = new GridLength(0);
                 r1.Height = new GridLength(0);
                 r3.Height = new GridLength(0);
+                TextBlock_Instructions.Visibility = Visibility.Visible;
+                Image_Silhouette.Visibility = Visibility.Visible;
             });
         }
 
@@ -201,6 +203,8 @@ namespace WhatHaveIBeenDrinking {
                 c3.Width = new GridLength(2, GridUnitType.Star);
                 r1.Height = new GridLength(1, GridUnitType.Star);
                 r3.Height = new GridLength(2, GridUnitType.Star);
+                TextBlock_Instructions.Visibility = Visibility.Collapsed;
+                Image_Silhouette.Visibility = Visibility.Collapsed;
             });
         }
 

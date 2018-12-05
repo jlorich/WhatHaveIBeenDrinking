@@ -155,6 +155,7 @@
     <Content Include="Assets\default-background.jpg" />
     <Content Include="Assets\generic-bottle.png" />
     <Content Include="Assets\One Great Family.jpg" />
+    <Content Include="Assets\silhouette.png" />
     <Content Include="Assets\splatter%403x.png" />
     <Content Include="Assets\test-bottle.png" />
     <Content Include="Assets\trivia_icon.png" />

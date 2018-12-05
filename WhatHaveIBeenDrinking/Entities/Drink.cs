@@ -16,14 +16,14 @@ namespace WhatHaveIBeenDrinking.Entities
 
         public string Description;
 
-        public string FoodPairing;
-
         public string ImageUrl;
 
         public string BottleImageUrl;
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<Content> Content;
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, string> IconTypes;
     }
 }

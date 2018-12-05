@@ -27,6 +27,8 @@
             </controls:DropShadowPanel>
             <TextBlock Grid.Column="1" Grid.Row="2" Text="Come close + scan + be amazed" Style="{StaticResource HeaderTextBlockStyle}" Foreground="White" HorizontalAlignment="Center" />
         </Grid>
-        <TextBlock x:Name="TextBlock_Name" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Name" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" RelativePanel.AlignBottomWith="" />
+        <TextBlock Visibility="Visible" x:Name="TextBlock_Name" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Name" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" RelativePanel.AlignBottomWith="" />
+        <TextBlock x:Name="TextBlock_Instructions" Visibility="Collapsed" Text="Stand nearby and hold up your can or bottle" Style="{StaticResource HeaderTextBlockStyle}" FocusVisualPrimaryBrush="White" Foreground="White" HorizontalAlignment="Center" RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Margin="0,0,0,58" />
+        <Image x:Name="Image_Silhouette" Visibility="Collapsed" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Source="/Assets/silhouette.png" Margin="100,100,100,200" />
     </RelativePanel>
 </Page>
