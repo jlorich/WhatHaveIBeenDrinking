@@ -67,12 +67,14 @@ namespace WhatHaveIBeenDrinking.Repositories
             );
         }
 
-        public Item GetItemByTag(string tag)
+        public Drink GetDrinkByTag(string tag)
         {
             var feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 
-            var result = Client.CreateDocumentQuery<Item>(_CollectionUri, feedOptions)
-                .Where(a => a.Tag == tag)
+            var result = Client.CreateDocumentQuery<Drink>(_CollectionUri, feedOptions)
+                .Where(
+                    a => a.EntityType == "Drink" &&
+                    a.Tag == tag)
                 .ToList()
                 .FirstOrDefault();
 

@@ -1,0 +1,32 @@
+﻿<Page
+    x:Class="WhatHaveIBeenDrinking.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctl="using:WhatHaveIBeenDrinking.Controls"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Black">
+    
+    <RelativePanel>
+        <Image RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" Source="/Assets/One Great Family.jpg" Stretch="UniformToFill" />
+        <Grid RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" x:Name="c1" />
+                <ColumnDefinition Width="3*" x:Name="c2"/>
+                <ColumnDefinition Width="2*" x:Name="c3" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" x:Name="r1" />
+                <RowDefinition Height="3*" x:Name="r2"/>
+                <RowDefinition Height="2*" x:Name="r3"/>
+            </Grid.RowDefinitions>
+            <controls:DropShadowPanel BlurRadius="10.0" ShadowOpacity="0.70" OffsetX="0.0" OffsetY="0.0" Color="Black"  Grid.Column="1" Grid.Row="1">
+                <ctl:CameraControl x:Name="cameraControl" Background="Black"/>
+            </controls:DropShadowPanel>
+            <TextBlock Grid.Column="1" Grid.Row="2" Text="Come close + scan + be amazed" Style="{StaticResource HeaderTextBlockStyle}" Foreground="White" HorizontalAlignment="Center" />
+        </Grid>
+        <TextBlock x:Name="TextBlock_Name" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Text="Name" FontWeight="Bold" FontSize="36" Height="75" HorizontalAlignment="Center" Foreground="White" RelativePanel.AlignBottomWith="" />
+    </RelativePanel>
+</Page>

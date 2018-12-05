@@ -7,6 +7,7 @@ using WhatHaveIBeenDrinking.Repositories;
 using Windows.Graphics.Imaging;
 
 using Newtonsoft.Json;
+using WhatHaveIBeenDrinking.Entities;
 
 namespace WhatHaveIBeenDrinking.Services
 {
@@ -28,19 +29,16 @@ namespace WhatHaveIBeenDrinking.Services
         {
             var classificationResult = await _ClassificationService.ClassifyImage(bitmap);
 
-            if (classificationResult.Probability < .25)
+            if (classificationResult == null || classificationResult.Probability < .25)
             {
                 return null;
             }
 
-            var displayData = _KioskRepository.GetItemByTag(classificationResult.Tag);
+            var drink = _KioskRepository.GetDrinkByTag(classificationResult.Tag);
             
             return new DrinkIdentificationResult
             {
-                Name = displayData?.Name,
-                Description = displayData?.Description,
-                FoodPairing = displayData?.FoodPairing,
-                ImageUrl = displayData?.ImageUrl,
+                Drink = drink,
                 Probability = classificationResult.Probability,
                 IdentifiedTag = classificationResult.Tag
             };

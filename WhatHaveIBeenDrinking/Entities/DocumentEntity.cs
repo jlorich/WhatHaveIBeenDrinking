@@ -6,6 +6,9 @@ namespace WhatHaveIBeenDrinking.Entities
 {
     public abstract class DocumentEntity
     {
+        [JsonProperty("$type")]
+        public string EntityType;
+
         public string Id;
     }
 }

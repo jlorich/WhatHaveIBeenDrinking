@@ -11,7 +11,7 @@
     FlowDirection="RightToLeft">
 
     <Grid FlowDirection="LeftToRight">
-        <CaptureElement x:Name="webCamCaptureElement" FlowDirection="{Binding ElementName=cameraControl, Path=FlowDirection}" />
+        <CaptureElement x:Name="webCamCaptureElement" FlowDirection="{Binding ElementName=cameraControl, Path=FlowDirection}" Stretch="UniformToFill" />
         <Canvas x:Name="FaceTrackingVisualizationCanvas" FlowDirection="{Binding ElementName=cameraControl, Path=FlowDirection}" />
     </Grid>
 </UserControl>

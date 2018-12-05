@@ -54,6 +54,11 @@ namespace WhatHaveIBeenDrinking.Services
                     }
                 }
 
+                if (predictedModel == null)
+                {
+                    return null;
+                }
+
                 return new ImageClassificationResult()
                 {
                     Tag = predictedModel.Tag,

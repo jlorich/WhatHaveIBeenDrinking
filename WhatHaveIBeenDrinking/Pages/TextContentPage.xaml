@@ -1,0 +1,59 @@
+﻿<Page
+    x:Class="WhatHaveIBeenDrinking.Pages.TextContentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WhatHaveIBeenDrinking.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Black">
+
+    <RelativePanel>
+        <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="/Assets/default-background.jpg" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Stretch="UniformToFill"/>
+        <Grid RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="4*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="5*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Image Name="Image_Logo" Grid.Column="1" Grid.Row="1" Source="/Assets/coors_logo.png" />
+            </Grid>
+
+            <Grid Grid.Row="0" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="4*" />
+                    <RowDefinition Height="3*" />
+                </Grid.RowDefinitions>
+                <Image Name="Image_Icon" Grid.Column="1" Grid.Row="1" Source="/Assets/trivia_icon.png" />
+            </Grid>
+            
+            <TextBlock Name="TextBlock_Title" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" Text="Did you know?" TextWrapping="Wrap" VerticalAlignment="Bottom" FocusVisualPrimaryBrush="White" Style="{StaticResource HeaderTextBlockStyle}" Foreground="White" Margin="0,0,0,10"/>
+            <TextBlock Name="TextBlock_Content" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Text="Founded in 1873, Coors was nicknamed &quot;Banquet Beer&quot; by Clear Creek Canyon miners, who'd drink it in banquet halls or huge banquet tents when there were no halls. The name didn't become official until 1937, when Coors sought to combat the Depression through nostalgia harkening back to its early mining era heritage. That same year, Coors also adopted two other slogans (&quot;America's Fine Light Beer&quot;, &quot;Brewed with Rocky Mountain Spring Water&quot;) and introduced their waterfall logo. " TextWrapping="Wrap" VerticalAlignment="Top" Style="{StaticResource TitleTextBlockStyle}" Foreground="White" LineHeight="36" Margin="0,10,0,0" TextAlignment="Center"/>
+        </Grid>
+        
+    </RelativePanel>
+    
+</Page>

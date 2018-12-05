@@ -1,0 +1,44 @@
+﻿<Page
+    x:Class="WhatHaveIBeenDrinking.Pages.VideoContentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WhatHaveIBeenDrinking.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Black">
+
+    <RelativePanel>
+        <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="/Assets/default-background.jpg" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Stretch="UniformToFill"/>
+        <Grid RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="10*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Image Name="Image_Logo" Grid.Column="1" Grid.Row="1" Source="/Assets/coors_logo.png" />
+            </Grid>
+            
+            <MediaElement Name="MediaElement_Player" Grid.Column="1" Grid.Row="1" KeyTipVerticalOffset="-1" Stretch="UniformToFill" />
+            <TextBlock Name="TextBlock_Description" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Text="Video Title" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="36" Foreground="White"/>
+
+        </Grid>
+        
+    </RelativePanel>
+</Page>
