@@ -180,7 +180,7 @@ namespace WhatHaveIBeenDrinking.Controls
                         frameProcessingTimer.Cancel();
                         frameProcessingSemaphore.Release();
                     }
-                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(66); //15fps
+                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(250); //15fps
                     frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(new TimerElapsedHandler(ProcessCurrentVideoFrame), timerInterval);
 
                     webCamCaptureElement.Visibility = Visibility.Visible;
@@ -201,7 +201,7 @@ namespace WhatHaveIBeenDrinking.Controls
 
             if (isForRealTimeProcessing)
             {
-                uint maxHeightForRealTime = 720;
+                uint maxHeightForRealTime = 1080;
                 // Find the highest resolution that is 720p or lower
                 highestVideoEncodingSetting = availableResolutions.FirstOrDefault(v => v.Height <= maxHeightForRealTime);
                 if (highestVideoEncodingSetting == null)
